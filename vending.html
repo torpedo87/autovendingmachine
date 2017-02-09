@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<link rel="stylesheet" href="./vending.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+
+				자판기<div class="message"></div>
+
+    </header>
+    <section class="content">
+      <nav>
+				<div class="slide" style="transform: translate3d(0,0px,0)"></div>
+      </nav>
+      <main>
+
+      </main>
+      <aside>
+	    	<div><img src="http://localhost/codesquad/project/vendingmachine/images/inputcoin.jpg" id="inputHole" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+				<div><img src="http://localhost/codesquad/project/vendingmachine/images/100.jpg" id="smallCoin" draggable="true" ondragstart="drag(event)"><img src="http://localhost/codesquad/project/vendingmachine/images/500.jpg" id="bigCoin" draggable="true" ondragstart="drag(event)"><img src="http://localhost/codesquad/project/vendingmachine/images/1000.jpg" id="paperMoney" draggable="true" ondragstart="drag(event)"><div class="balance">0</div></div>
+				<div class="returnMoney">RETURN MONEY</div>
+				<div class='adWrapper'>
+					<div class='adContainer' style="transform: translate3d(0px,0,0)">
+						<div class="adItem one">3</div>
+						<div class="adItem two">1</div>
+						<div class="adItem three">2</div>
+						<div class="adItem four">3</div>
+						<div class="adItem five">1</div>
+					</div>
+				</div>
+      </aside>
+    </section>
+    <footer>
+			output
+    </footer>
+  </div>
+
+	<table class="logTable">
+		<tr>
+			<td>품목</td>
+			<td>재고</td>
+			<td>매출액</td>
+			<td>날짜</td>
+		</tr>
+	</table>
+
+	<script src="./vending.js"></script>
+</body>
+</html>
