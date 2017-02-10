@@ -199,29 +199,43 @@ function alertMessage(text){
 };
 
 //광고 슬라이드
-// var adSlide = setInterval(adContainerMove, 3000);
+var adSlide = setInterval(adContainerMove, 3000);
+var logTable=document.querySelector(".logTable");
+logTable.addEventListener('click',adContainerMove);
 var adContainer=document.querySelector(".adContainer");
 var baseWidth=150;
 var prop = adContainer.style.transform;
-adContainer.addEventListener('transitionend',goBack);
-var xValue=prop.replace(/translate3d\((\-?\d+)px.+/,"$1")*1;
+var xValue=prop.replace(/translate3d\((-?\d+)px.+/,"$1");
 
-//1칸씩 이동
-function adContainerMove() {
-  if(xValue%150===0){
+adContainer.addEventListener("transitionend",goBack);
 
-    adContainer.style.transition='all';
-    xValue=xValue-baseWidth;
-    adContainer.style.transform='translate3d('+xValue+'px,0,0)';
-    console.log(xValue);
-  }
-};
 function goBack(){
   if(xValue===-300){
-    adContainer.style.transition='none';
-    adContainer.style.transform='translate3d(300px,0,0)';
-  }
-  else {
-    adContainer.style.transition='all';
+        adContainer.style.transition="none";
+        xValue=150;
+        adContainer.style.transform="translate3d("+xValue+"px,0,0)";
+  }else{
+    adContainer.style.transition="all 1s";
   }
 }
+
+//1칸씩 이동
+function adContainerMove(){
+  if(xValue%baseWidth===0){
+    adContainer.style.transition="all 1s";
+    xValue=xValue-baseWidth;
+    adContainer.style.transform="translate3d("+xValue+"px,0,0)";
+  }
+};
+
+// function adContainerMove(){
+//   if(xValue===-150){
+//     adContainer.style.transition="none";
+//     xValue=150;
+//     adContainer.style.transform="translate3d("+xValue+"px,0,0)";
+//   }else if(xValue%baseWidth===0){
+//     adContainer.style.transition="all 0.6s";
+//     xValue=xValue-baseWidth;
+//     adContainer.style.transform="translate3d("+xValue+"px,0,0)";
+//   }
+// };
