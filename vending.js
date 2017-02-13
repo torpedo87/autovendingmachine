@@ -32,14 +32,15 @@ function init(){
 
     //template 작업인데 뭔가 코드가 더 길어진것 같다...
     var dataStr="<div class={{hotOrCold}}><img src={{url}}><div class='name'>{{name}}</div><div class='price'>{{price}}</div></div>"
-    var stockStr="<tr class='stock'><td class='stockName'>{{name}}</td><td class='stockNumber>{{stock}}</td><td class='stockIncome>0</td><td class='stockDate'>{{date}}</td>";
+    var stockStr="<tr class='stock'><td class='stockName'>{{name}}</td><td class='stockNumber'>{{stock}}</td><td class='stockIncome'>0</td><td class='stockDate'>{{date}}</td>";
     function replaceAll(someData,j){
-      someData.replace("{{hotOrCold}}",parsedStockData[j].hotOrCold);
-      someData.replace("{{url}}",parsedStockData[j].url);
-      someData.replace("{{name}}",parsedStockData[j].name);
-      someData.replace("{{price}}",parsedStockData[j].price);
-      someData.replace("{{stock}}",parsedStockData[j].stock);
-      someData.replace("{{date}}",time);
+      var a=someData.replace("{{hotOrCold}}",parsedStockData[j].hotOrCold);
+      var b=a.replace("{{url}}",parsedStockData[j].url);
+      var c=b.replace("{{name}}",parsedStockData[j].name);
+      var d=c.replace("{{price}}",parsedStockData[j].price);
+      var e=d.replace("{{stock}}",parsedStockData[j].stock);
+      var f=e.replace("{{date}}",time);
+      return f;
     };
     for(var i=0; i<parsedStockData.length; i++){
       main.insertAdjacentHTML('beforeend',replaceAll(dataStr,i));
