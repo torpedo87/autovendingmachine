@@ -29,10 +29,28 @@ function init(){
     var logTable=document.querySelector(".logTable");
     var d=new Date();
     var time=d.getDate();
+
+    //template 작업인데 뭔가 코드가 더 길어진것 같다...
+    var dataStr="<div class={{hotOrCold}}><img src={{url}}><div class='name'>{{name}}</div><div class='price'>{{price}}</div></div>"
+    var stockStr="<tr class='stock'><td class='stockName'>{{name}}</td><td class='stockNumber>{{stock}}</td><td class='stockIncome>0</td><td class='stockDate'>{{date}}</td>";
+    function replaceAll(someData,j){
+      someData.replace("{{hotOrCold}}",parsedStockData[j].hotOrCold);
+      someData.replace("{{url}}",parsedStockData[j].url);
+      someData.replace("{{name}}",parsedStockData[j].name);
+      someData.replace("{{price}}",parsedStockData[j].price);
+      someData.replace("{{stock}}",parsedStockData[j].stock);
+      someData.replace("{{date}}",time);
+    };
     for(var i=0; i<parsedStockData.length; i++){
-      main.insertAdjacentHTML('beforeend', "<div class="+parsedStockData[i].hotOrCold+"><img src="+parsedStockData[i].url+"><div class='name'>"+parsedStockData[i].name+"</div><div class='price'>"+parsedStockData[i].price+"</div></div>");
-      logTable.insertAdjacentHTML('beforeend',"<tr class='stock'><td class='stockName'>"+parsedStockData[i].name+"</td><td class='stockNumber'>"+parsedStockData[i].stock+"</td><td class='stockIncome'>0</td><td class='stockDate'>"+time+"</td></tr>");
-    }logTable.insertAdjacentHTML('beforeend',"<tr class='total'><td></td><td></td><td class='totalIncome'>0</td><td></td>");
+      main.insertAdjacentHTML('beforeend',replaceAll(dataStr,i));
+      logTable.insertAdjacentHTML('beforeend',replaceAll(stockStr,i));
+    }
+
+    // for(var i=0; i<parsedStockData.length; i++){
+    //   main.insertAdjacentHTML('beforeend', "<div class="+parsedStockData[i].hotOrCold+"><img src="+parsedStockData[i].url+"><div class='name'>"+parsedStockData[i].name+"</div><div class='price'>"+parsedStockData[i].price+"</div></div>");
+    //   logTable.insertAdjacentHTML('beforeend',"<tr class='stock'><td class='stockName'>"+parsedStockData[i].name+"</td><td class='stockNumber'>"+parsedStockData[i].stock+"</td><td class='stockIncome'>0</td><td class='stockDate'>"+time+"</td></tr>");
+    // }
+    logTable.insertAdjacentHTML('beforeend',"<tr class='total'><td></td><td></td><td class='totalIncome'>0</td><td></td>");
     for(var i=0; i<parsedStockData.length; i++){
       if(parsedStockData[i].ageLimit>=19){
         var nameList = document.querySelectorAll(".name");
