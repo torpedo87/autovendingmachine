@@ -23,12 +23,17 @@
 				<div><img src="http://localhost/codesquad/project/vendingmachine/images/100.jpg" id="smallCoin" draggable="true" ondragstart="drag(event)"><img src="http://localhost/codesquad/project/vendingmachine/images/500.jpg" id="bigCoin" draggable="true" ondragstart="drag(event)"><img src="http://localhost/codesquad/project/vendingmachine/images/1000.jpg" id="paperMoney" draggable="true" ondragstart="drag(event)"><div class="balance">0</div></div>
 				<div class="returnMoney">RETURN MONEY</div>
 				<div class='adWrapper'>
-					<div class='adContainer' style="transform: translate3d(0px,0,0)">
-						<div class="adItem one">3</div>
-						<div class="adItem two">1</div>
-						<div class="adItem three">2</div>
-						<div class="adItem four">3</div>
-						<div class="adItem five">1</div>
+					<div class='adContainer' style='transform: translate3d(0px,0,0)'>
+						<div class="adItem one"><img src="http://localhost/codesquad/project/vendingmachine/images/1.jpeg"></div>
+						<div class="adItem two"><img src="http://localhost/codesquad/project/vendingmachine/images/2.jpeg"></div>
+						<div class="adItem three"><img src="http://localhost/codesquad/project/vendingmachine/images/3.jpg"></div>
+						<div class="adItem four"><img src="http://localhost/codesquad/project/vendingmachine/images/1.jpeg"></div>
+						<div class="adItem five"><img src="http://localhost/codesquad/project/vendingmachine/images/2.jpeg"></div>
+						<!-- <img src="http://localhost/codesquad/project/vendingmachine/images/1.jpg">
+						<img src="http://localhost/codesquad/project/vendingmachine/images/2.png">
+						<img src="http://localhost/codesquad/project/vendingmachine/images/3.png">
+						<img src="http://localhost/codesquad/project/vendingmachine/images/1.jpg">
+						<img src="http://localhost/codesquad/project/vendingmachine/images/2.png"> -->
 					</div>
 				</div>
       </aside>
@@ -37,15 +42,45 @@
 			output
     </footer>
   </div>
+	<div class="table">
+		<table class="logTable">
+			<tr>
+				<td>품목</td>
+				<td>재고</td>
+				<td>매출액</td>
+				<td>날짜</td>
+				<td>원가</td>
+				<td>영업이익</td>
+			</tr>
+		</table>
+		<table class="stockManager">
+			<tr>
+				<td>품목명</td>
+				<td>채울갯수</td>
+				<td>재고관리</td>
+			</tr>
+			<tr>
+				<td><input type="text" placeholder="품목명" class="stockManagerName"></td>
+				<td><input type="text" placeholder="갯수" class="stockManagerNumber"></td>
+				<td><button class="stockBtn">채우기</button></td>
+			</tr>
+		</table>
+		<table class="profitManager">
+			<tr>
+				<td>날짜별</td>
+				<td>영업이익</td>
+				<td>1위 품목</td>
+				<td>매출관리</td>
+			</tr>
+			<tr>
+				<td><input type="text" placeholder="날짜(일)" class="dateFinder"></td>
+				<td class="dateProfit">0</td>
+				<td class="topItem"></td>
+				<td><button class="profitBtn">검색</button></td>
+			</tr>
+		</table>
+	</div>
 
-	<table class="logTable">
-		<tr>
-			<td>품목</td>
-			<td>재고</td>
-			<td>매출액</td>
-			<td>날짜</td>
-		</tr>
-	</table>
 
 	<script src="./vending.js"></script>
 </body>

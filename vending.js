@@ -2,7 +2,6 @@
 document.addEventListener("DOMContentLoaded",function(){
   init();
 });
-
 //global variables 전역변수 모아놓기
 var ajaxURL="http://localhost/codesquad/project/vendingmachine/data.json"
 var balanceDiv=document.querySelector(".balance");
@@ -11,6 +10,7 @@ var returnDiv=document.querySelector(".returnMoney");
 
 
 function init(){
+
   //ajax 호출
     function ajax(){
     var oReq = new XMLHttpRequest();
@@ -32,7 +32,9 @@ function init(){
 
     //template 작업인데 뭔가 코드가 더 길어진것 같다...
     var dataStr="<div class={{hotOrCold}}><img src={{url}}><div class='name'>{{name}}</div><div class='price'>{{price}}</div></div>"
-    var stockStr="<tr class='stock'><td class='stockName'>{{name}}</td><td class='stockNumber'>{{stock}}</td><td class='stockIncome'>0</td><td class='stockDate'>{{date}}</td>";
+    // var stockStr="<tr class='stock'><td class='stockName'>{{name}}</td><td class='stockNumber'>{{stock}}</td><td class='stockDate'>{{date}}</td><td class='stockCost'>{{cost}}</td><td class='stockProfit'>0</td>";
+    var stockStr="<tr class='stock'><td class='stockName'>{{name}}</td><td class='stockNumber'>{{stock}}</td><td class='stockIncome'>0</td><td class='stockDate'>{{date}}</td><td class='stockCost'>{{cost}}</td><td class='stockProfit'>0</td>";
+
     function replaceAll(someData,j){
       var a=someData.replace("{{hotOrCold}}",parsedStockData[j].hotOrCold);
       var b=a.replace("{{url}}",parsedStockData[j].url);
@@ -40,18 +42,54 @@ function init(){
       var d=c.replace("{{price}}",parsedStockData[j].price);
       var e=d.replace("{{stock}}",parsedStockData[j].stock);
       var f=e.replace("{{date}}",time);
-      return f;
+      var g=f.replace("{{cost}}",parsedStockData[j].cost);
+      return g;
     };
+    var originalObj=localStorage.getItem(time);
+    var parsedObj=JSON.parse(originalObj);
     for(var i=0; i<parsedStockData.length; i++){
       main.insertAdjacentHTML('beforeend',replaceAll(dataStr,i));
       logTable.insertAdjacentHTML('beforeend',replaceAll(stockStr,i));
+    }
+    var stockIncomeList=document.querySelectorAll('.stockIncome');
+    var stockProfitList=document.querySelectorAll('.stockProfit');
+    var stockNumberList=document.querySelectorAll('.stockNumber');
+
+    //ajax로 가져온것 로컬스토리지에 넣어버리기
+
+    //로컬스토리지에서 가져오기
+    for(var i=0; i<parsedStockData.length; i++){
+      if(parsedObj!==null && Object.keys(parsedObj).includes(parsedStockData[i].name)){
+
+        stockNumberList[i].innerHTML=parsedObj[parsedStockData[i].name]["재고"];
+        stockProfitList[i].innerHTML=parsedObj[parsedStockData[i].name]["영업이익"];
+        if(parsedObj[parsedStockData[i].name]["매출액"]===undefined){
+          stockIncomeList[i].innerHTML=0;
+        }else{
+          stockIncomeList[i].innerHTML=parsedObj[parsedStockData[i].name]["매출액"];
+        }
+
+
+      }
     }
 
     // for(var i=0; i<parsedStockData.length; i++){
     //   main.insertAdjacentHTML('beforeend', "<div class="+parsedStockData[i].hotOrCold+"><img src="+parsedStockData[i].url+"><div class='name'>"+parsedStockData[i].name+"</div><div class='price'>"+parsedStockData[i].price+"</div></div>");
     //   logTable.insertAdjacentHTML('beforeend',"<tr class='stock'><td class='stockName'>"+parsedStockData[i].name+"</td><td class='stockNumber'>"+parsedStockData[i].stock+"</td><td class='stockIncome'>0</td><td class='stockDate'>"+time+"</td></tr>");
     // }
-    logTable.insertAdjacentHTML('beforeend',"<tr class='total'><td></td><td></td><td class='totalIncome'>0</td><td></td>");
+
+    // logTable.insertAdjacentHTML('beforeend',"<tr class='total'><td>TOTAL</td><td></td><td></td><td></td><td class='totalProfit'>0</td>");
+    logTable.insertAdjacentHTML('beforeend',"<tr class='total'><td>TOTAL</td><td></td><td class='totalIncome'>0</td><td></td><td></td><td class='totalProfit'>0</td>");
+    var totalProfit=document.querySelector('.totalProfit');
+    var totalIncome=document.querySelector('.totalIncome');
+    var originalObj=localStorage.getItem(time);
+    var parsedObj=JSON.parse(originalObj);
+    for(var i=0; i<parsedStockData.length; i++){
+      if(parsedObj!==null && Object.keys(parsedObj).includes("총매출액")){
+        totalIncome.innerHTML=parsedObj["매출액"];
+        totalProfit.innerHTML=parsedObj["재고"];
+      }
+    }
     for(var i=0; i<parsedStockData.length; i++){
       if(parsedStockData[i].ageLimit>=19){
         var nameList = document.querySelectorAll(".name");
@@ -59,6 +97,8 @@ function init(){
       }
     }
   };
+
+
 
   // 반환레버 기능(잔액 초기화)
   returnDiv.addEventListener('click',returnMoney)
@@ -157,12 +197,18 @@ function reduceBalance(evt){
 }
 
 //구매시 재고 감소
+var objValue={};
 function reduceStock(evt){
+  var d=new Date();
+  var time=d.getDate();
   var stockNumberList=document.querySelectorAll(".stockNumber");
   var stockNameList=document.querySelectorAll(".stockName");
   for(var i=0; i<stockNumberList.length; i++){
     if(evt.target.innerHTML===stockNameList[i].innerHTML && evt.target.classList.contains("available")){
       stockNumberList[i].innerHTML= stockNumberList[i].innerHTML*1-1;
+      objValue[stockNameList[i].innerHTML]={};
+      objValue[stockNameList[i].innerHTML]["재고"]=stockNumberList[i].innerHTML;
+      localStorage.setItem(time,JSON.stringify(objValue));
       return;
     }
   }
@@ -189,28 +235,96 @@ function sliding(evt){
 
 
 
-//매출액 로그
+
+
+//구매시 매출액 증가, 영업이익 증가
+var obj={};
 function logMessage(evt){
   var logTable=document.querySelector(".logTable");
-  var totalIncome=document.querySelector(".totalIncome")
+  // var totalIncome=document.querySelector(".totalIncome")
   var d=new Date();
   var time=d.getDate();
   var stockNumberList=document.querySelectorAll(".stockNumber");
   var stockNameList=document.querySelectorAll(".stockName");
   var stockDateList=document.querySelectorAll(".stockDate");
   var stockIncomeList=document.querySelectorAll(".stockIncome");
-  var total=document.querySelector('.total')
+  var stockProfitList=document.querySelectorAll(".stockProfit");
+  var total=document.querySelector('.total');
+  var totalProfit=document.querySelector('.totalProfit');
+  var totalIncome=document.querySelector('.totalIncome');
   if(evt.target.classList.contains("available")){
     for(var i=0; i<stockNameList.length; i++){
       if(stockNameList[i].innerHTML===evt.target.innerHTML && stockDateList[i].innerHTML*1===time){
         stockIncomeList[i].innerHTML=stockIncomeList[i].innerHTML*1+evt.target.nextElementSibling.innerHTML*1;
+        stockProfitList[i].innerHTML=stockProfitList[i].innerHTML*1+evt.target.nextElementSibling.innerHTML*1;
         totalIncome.innerHTML=totalIncome.innerHTML*1+evt.target.nextElementSibling.innerHTML*1;
+        totalProfit.innerHTML=totalProfit.innerHTML*1+evt.target.nextElementSibling.innerHTML*1;
+        obj[stockNameList[i].innerHTML]={};
+        obj[stockNameList[i].innerHTML]["영업이익"]=stockProfitList[i].innerHTML;
+        obj[stockNameList[i].innerHTML]["매출액"]=stockIncomeList[i].innerHTML;
+        obj["총영업이익"]=totalProfit.innerHTML;
+        localStorage.setItem(time,JSON.stringify(obj));
         return;
       }
     }
 
   }
 };
+
+//재고추가시 재고수 증가, 영업이익 감소, 총수익감소
+var stockBtn=document.querySelector('.stockBtn');
+var profitBtn=document.querySelector('.profitBtn');
+stockBtn.addEventListener('click',stockManager);
+profitBtn.addEventListener('click',profitManager);
+var objValue={};
+function stockManager(){
+  var stockNumberList=document.querySelectorAll(".stockNumber");
+  var stockNameList=document.querySelectorAll(".stockName");
+  var stockManagerName=document.querySelector('.stockManagerName');
+  var stockManagerNumber=document.querySelector('.stockManagerNumber');
+  var stockCostList=document.querySelectorAll('.stockCost');
+  var stockProfitList=document.querySelectorAll('.stockProfit');
+  var totalProfit=document.querySelector('.totalProfit');
+  var d=new Date();
+  var time=d.getDate();
+  for(var i=0; i<stockNameList.length; i++){
+    if(stockManagerName.value===stockNameList[i].innerHTML && parseInt(stockManagerNumber.value)>0){
+      stockNumberList[i].innerHTML=stockNumberList[i].innerHTML*1+parseInt(stockManagerNumber.value)
+      stockProfitList[i].innerHTML=stockProfitList[i].innerHTML*1-parseInt(stockManagerNumber.value)*stockCostList[i].innerHTML*1;
+      totalProfit.innerHTML=totalProfit.innerHTML*1-parseInt(stockManagerNumber.value)*stockCostList[i].innerHTML*1;
+      objValue[stockNameList[i].innerHTML]={};
+      objValue[stockNameList[i].innerHTML]["영업이익"]=stockProfitList[i].innerHTML;
+      objValue[stockNameList[i].innerHTML]["재고"]=stockNumberList[i].innerHTML;
+      objValue["총영업이익"]=totalProfit.innerHTML;
+      localStorage.setItem(time,JSON.stringify(objValue));
+    }
+  }
+  stockManagerName.value="";
+  stockManagerNumber.value="";
+  availableSignal();
+}
+
+function profitManager(){
+  var dateFinder=document.querySelector('.dateFinder');
+  if(localStorage.getItem(dateFinder.value)!=="undefined"){
+    var dateProfit=document.querySelector('.dateProfit');
+    var topItem=document.querySelector('.topItem');
+    var dateObj=localStorage.getItem(dateFinder.value);
+    var parsedDateObj=JSON.parse(dateObj);
+    dateProfit.innerHTML=parsedDateObj["totalProfit"];
+    var arr=Object.keys(parsedDateObj).map(function(key){return parsedDateObj[key]});
+    var max=Math.max.apply(null,arr);
+    for(key in parsedDateObj){
+      if(parseInt(parsedDateObj[key])===max){
+        var maxKey=key;
+      };
+    }
+    topItem.innerHTML=maxKey;
+  }
+}
+
+
+
 
 //메시지
 function alertMessage(text){
