@@ -1,14 +1,14 @@
 [
-  {"name":"coke","stock":5,"hotOrCold":"cold","ageLimit":1,"price":500, "url":"http://localhost/codesquad/project/vendingmachine/images/coke.jpg"},
-  {"name":"sprite","stock":5,"hotOrCold":"cold","ageLimit":1,"price":500, "url":"http://localhost/codesquad/project/vendingmachine/images/sprite.jpg"},
-  {"name":"cigar","stock":5,"hotOrCold":"cold","ageLimit":19,"price":3000, "url":"http://localhost/codesquad/project/vendingmachine/images/cigar.jpg"},
-  {"name":"soju","stock":5,"hotOrCold":"cold","ageLimit":19,"price":2000, "url":"http://localhost/codesquad/project/vendingmachine/images/soju.jpg"},
-  {"name":"beer","stock":5,"hotOrCold":"cold","ageLimit":19,"price":3000, "url":"http://localhost/codesquad/project/vendingmachine/images/beer.jpg"},
-  {"name":"americano","stock":5,"hotOrCold":"hot","ageLimit":10,"price":1500, "url":"http://localhost/codesquad/project/vendingmachine/images/americano.jpg"},
-  {"name":"iceAmericano","stock":5,"hotOrCold":"cold","ageLimit":10,"price":2000, "url":"http://localhost/codesquad/project/vendingmachine/images/iceamericano.jpg"},
-  {"name":"cafeLatte","stock":5,"hotOrCold":"hot","ageLimit":10,"price":3000, "url":"http://localhost/codesquad/project/vendingmachine/images/caffelatte.jpg"},
-  {"name":"cocoa","stock":5,"hotOrCold":"hot","ageLimit":1,"price":500, "url":"http://localhost/codesquad/project/vendingmachine/images/cocoa.jpg"},
-  {"name":"milk","stock":5,"hotOrCold":"cold","ageLimit":1,"price":800, "url":"http://localhost/codesquad/project/vendingmachine/images/milk.jpg"},
-  {"name":"juice","stock":5,"hotOrCold":"cold","ageLimit":1,"price":800, "url":"http://localhost/codesquad/project/vendingmachine/images/juice.jpg"},
-  {"name":"snack","stock":5,"hotOrCold":"cold","ageLimit":1,"price":1500, "url":"http://localhost/codesquad/project/vendingmachine/images/snack.jpg"}
+  {"name":"coke","stock":0,"hotOrCold":"cold","ageLimit":1,"price":500,"cost":300, "url":"http://localhost/codesquad/project/vendingmachine/images/coke.jpg"},
+  {"name":"sprite","stock":0,"hotOrCold":"cold","ageLimit":1,"price":500,"cost":300, "url":"http://localhost/codesquad/project/vendingmachine/images/sprite.jpg"},
+  {"name":"cigar","stock":0,"hotOrCold":"cold","ageLimit":19,"price":3000,"cost":500, "url":"http://localhost/codesquad/project/vendingmachine/images/cigar.jpg"},
+  {"name":"soju","stock":0,"hotOrCold":"cold","ageLimit":19,"price":2000,"cost":800, "url":"http://localhost/codesquad/project/vendingmachine/images/soju.jpg"},
+  {"name":"beer","stock":0,"hotOrCold":"cold","ageLimit":19,"price":3000,"cost":900, "url":"http://localhost/codesquad/project/vendingmachine/images/beer.jpg"},
+  {"name":"americano","stock":0,"hotOrCold":"hot","ageLimit":10,"price":1500,"cost":500, "url":"http://localhost/codesquad/project/vendingmachine/images/americano.jpg"},
+  {"name":"iceAmericano","stock":0,"hotOrCold":"cold","ageLimit":10,"price":2000,"cost":500, "url":"http://localhost/codesquad/project/vendingmachine/images/iceamericano.jpg"},
+  {"name":"cafeLatte","stock":0,"hotOrCold":"hot","ageLimit":10,"price":3000,"cost":300, "url":"http://localhost/codesquad/project/vendingmachine/images/caffelatte.jpg"},
+  {"name":"cocoa","stock":0,"hotOrCold":"hot","ageLimit":1,"price":500,"cost":100, "url":"http://localhost/codesquad/project/vendingmachine/images/cocoa.jpg"},
+  {"name":"milk","stock":0,"hotOrCold":"cold","ageLimit":1,"price":800,"cost":300, "url":"http://localhost/codesquad/project/vendingmachine/images/milk.jpg"},
+  {"name":"juice","stock":0,"hotOrCold":"cold","ageLimit":1,"price":800,"cost":300, "url":"http://localhost/codesquad/project/vendingmachine/images/juice.jpg"},
+  {"name":"snack","stock":0,"hotOrCold":"cold","ageLimit":1,"price":1500,"cost":400, "url":"http://localhost/codesquad/project/vendingmachine/images/snack.jpg"}
 ]
