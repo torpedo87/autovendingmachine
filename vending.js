@@ -7,8 +7,18 @@ var ajaxURL="http://localhost/codesquad/project/vendingmachine/data.json"
 var balanceDiv=document.querySelector(".balance");
 var messageDiv=document.querySelector(".message");
 var returnDiv=document.querySelector(".returnMoney");
+function formatDate() {
+    var d = new Date(),
+        month = '' + (d.getMonth() + 1),
+        day = '' + d.getDate(),
+        year = d.getFullYear();
 
+    if (month.length < 2) month = '0' + month;
+    if (day.length < 2) day = '0' + day;
 
+    return [year, month, day].join('-');
+}
+var time=formatDate();
 
 function init(){
 
@@ -28,11 +38,9 @@ function init(){
     var parsedStockData = JSON.parse(rawData);
     var main=document.querySelector('main');
     var logTable=document.querySelector(".logTable");
-    var d=new Date();
-    var time=d.toLocaleDateString();
-    //template 작업인데 뭔가 코드가 더 길어진것 같다...
-    var dataStr="<div class={{hotOrCold}}><img src={{url}}><div class='name'>{{name}}</div><div class='price'>{{price}}</div></div>"
-    var stockStr="<tr class='stock'><td class='stockName'>{{name}}</td><td class='stockNumber'>{{stock}}</td><td class='stockIncome'>0</td><td class='stockDate'>{{date}}</td><td class='stockCost'>{{cost}}</td><td class='stockProfit'>0</td>";
+
+    var dataStr=document.querySelector('#dataTemplate').innerHTML;
+    var stockStr=document.querySelector('#stockTemplate').innerHTML;
     function replaceAll(someData,j){
       var a=someData.replace("{{hotOrCold}}",parsedStockData[j].hotOrCold);
       var b=a.replace("{{url}}",parsedStockData[j].url);
@@ -44,7 +52,6 @@ function init(){
       return g;
     };
 
-
     //메뉴버튼 넣기, 로그테이블 만들기
     for(var i=0; i<parsedStockData.length; i++){
       main.insertAdjacentHTML('beforeend',replaceAll(dataStr,i));
@@ -53,6 +60,14 @@ function init(){
     var stockIncomeList=document.querySelectorAll('.stockIncome');
     var stockProfitList=document.querySelectorAll('.stockProfit');
     var stockNumberList=document.querySelectorAll('.stockNumber');
+
+    //재고 추가 품목명 검색창에 넣어놓기
+    var itemStr="<a href='#'>{{name}}</a>"
+    var itemDropdown=document.querySelector('.itemDropdown');
+    for(var i=0; i<parsedStockData.length; i++){
+      itemDropdown.insertAdjacentHTML('beforeend',replaceAll(itemStr,i));
+    }
+
 
     //로그테이블 맨 밑 총매출액, 총영업이익 메뉴 만들기
     logTable.insertAdjacentHTML('beforeend',"<tr class='total'><td>TOTAL</td><td></td><td class='totalIncome'>0</td><td></td><td></td><td class='totalProfit'>0</td>");
@@ -145,8 +160,8 @@ function init(){
 
 //로그테이블 내용을 로컬스토리지에 넣기
 function tableToStorage(){
-  var d=new Date();
-  var time=d.toLocaleDateString();
+  // var d=new Date();
+  // var time=d.toLocaleDateString();
   var stockNameList=document.querySelectorAll('.stockName');
   var stockNumberList=document.querySelectorAll('.stockNumber');
   var stockIncomeList=document.querySelectorAll('.stockIncome');
@@ -253,8 +268,8 @@ function reduceBalance(evt){
 //구매시 재고 감소
 
 function reduceStock(evt){
-  var d=new Date();
-  var time=d.toLocaleDateString();
+  // var d=new Date();
+  // var time=d.toLocaleDateString();
   var stockNumberList=document.querySelectorAll(".stockNumber");
   var stockNameList=document.querySelectorAll(".stockName");
   for(var i=0; i<stockNumberList.length; i++){
@@ -266,6 +281,27 @@ function reduceStock(evt){
     }
   }
 }
+
+/* When the user clicks on the button,
+toggle between hiding and showing the dropdown content */
+
+function myFunction() {
+
+       event.target.nextElementSibling.classList.toggle("show");
+};
+
+// Close the dropdown menu if the user clicks outside of it
+var dropdownContents=document.querySelectorAll(".dropdownContent");
+window.onclick = function(event) {
+  if (!event.target.matches('.dropbtn')) {
+    for (var i = 0; i<dropdownContents.length; i++) {
+      if (dropdownContents[i].classList.contains('show')) {
+        dropdownContents[i].classList.remove('show');
+      }
+    }
+  }
+}
+
 
 //구매시 슬라이딩 애니메이션(클론 후 nav로 내려가기)
 function sliding(evt){
@@ -292,8 +328,8 @@ function logMessage(evt){
 
   var logTable=document.querySelector(".logTable");
   // var totalIncome=document.querySelector(".totalIncome")
-  var d=new Date();
-  var time=d.toLocaleDateString();
+  // var d=new Date();
+  // var time=d.toLocaleDateString();
   var stockNumberList=document.querySelectorAll(".stockNumber");
   var stockNameList=document.querySelectorAll(".stockName");
   var stockDateList=document.querySelectorAll(".stockDate");
@@ -322,6 +358,13 @@ function logMessage(evt){
 
 var stockBtn=document.querySelector('.stockBtn');
 var profitBtn=document.querySelector('.profitBtn');
+var itemDropdown=document.querySelector('.itemDropdown');
+var stockManagerName=document.querySelector('.stockManagerName');
+itemDropdown.addEventListener('click',inputItemName);
+function inputItemName(evt){
+  stockManagerName.value=evt.target.innerText;
+  itemDropdown.classList.toggle("show");
+};
 stockBtn.addEventListener('click',stockManager);
 profitBtn.addEventListener('click',profitManager);
 function stockManager(){
@@ -332,8 +375,8 @@ function stockManager(){
   var stockCostList=document.querySelectorAll('.stockCost');
   var stockProfitList=document.querySelectorAll('.stockProfit');
   var totalProfit=document.querySelector('.totalProfit');
-  var d=new Date();
-  var time=d.toLocaleDateString();
+  // var d=new Date();
+  // var time=d.toLocaleDateString();
   for(var i=0; i<stockNameList.length; i++){
     if(stockManagerName.value===stockNameList[i].innerHTML && parseInt(stockManagerNumber.value)>0){
       //로그테이블 변경
