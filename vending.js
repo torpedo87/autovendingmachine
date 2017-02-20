@@ -12,17 +12,24 @@ function formatDate() {
         month = '' + (d.getMonth() + 1),
         day = '' + d.getDate(),
         year = d.getFullYear();
-
     if (month.length < 2) month = '0' + month;
     if (day.length < 2) day = '0' + day;
-
     return [year, month, day].join('-');
 }
 var time=formatDate();
 
 function init(){
-
   //ajax 호출
+    ajax();
+    // 반환레버 기능(잔액 초기화)
+    returnDiv.addEventListener('click',returnMoney)
+    function returnMoney(){
+      balanceDiv.innerHTML=0;
+      availableSignal();
+    }
+
+
+
     function ajax(){
     var oReq = new XMLHttpRequest();
     oReq.addEventListener("load",function(){       //콜백함수는 서버가 보내주면 시작한다 페이지가 로드되면 changeContent 함수 실행
@@ -31,14 +38,12 @@ function init(){
     oReq.open("GET", ajaxURL);
     oReq.send();
     };
-    ajax();
 
   //storage에 저장된 재고들을 자판기 메뉴버튼에 표시하기, 로그테이블
   function storageToDiv(rawData){
     var parsedStockData = JSON.parse(rawData);
     var main=document.querySelector('main');
     var logTable=document.querySelector(".logTable");
-
     var dataStr=document.querySelector('#dataTemplate').innerHTML;
     var stockStr=document.querySelector('#stockTemplate').innerHTML;
     function replaceAll(someData,j){
@@ -67,7 +72,6 @@ function init(){
     for(var i=0; i<parsedStockData.length; i++){
       itemDropdown.insertAdjacentHTML('beforeend',replaceAll(itemStr,i));
     }
-
 
     //로그테이블 맨 밑 총매출액, 총영업이익 메뉴 만들기
     logTable.insertAdjacentHTML('beforeend',"<tr class='total'><td>TOTAL</td><td></td><td class='totalIncome'>0</td><td></td><td></td><td class='totalProfit'>0</td>");
@@ -150,13 +154,13 @@ function init(){
 
   };
 
-  // 반환레버 기능(잔액 초기화)
-  returnDiv.addEventListener('click',returnMoney)
-  function returnMoney(){
-    balanceDiv.innerHTML=0;
-    availableSignal();
-  }
 };
+
+
+
+
+
+
 
 //로그테이블 내용을 로컬스토리지에 넣기
 function tableToStorage(){
@@ -400,24 +404,28 @@ function profitManager(){
   var topItem=document.querySelector('.topItem');
   var dateObj=localStorage.getItem(dateFinder.value);
   var parsedDateObj=JSON.parse(dateObj);
-  var arr=Object.keys(parsedDateObj).map(maxCheck);
-  function maxCheck(key){
-    if(key==="총영업이익"){
-      return 0;
-    }else{
-      return parsedDateObj[key]["영업이익"]
+
+  if(parsedDateObj===null || parsedDateObj===undefined){
+    dateTotalProfit.innerHTML="없음";
+    topItem.innerHTML="없음";
+  }else{
+    var arr=Object.keys(parsedDateObj).map(maxCheck);
+    function maxCheck(key){
+      if(key==="총영업이익"){
+        return 0;
+      }else{
+        return parsedDateObj[key]["영업이익"]
+      }
+    };
+    var max=Math.max.apply(null,arr);
+    dateTotalProfit.innerHTML=parsedDateObj["총영업이익"];
+    for(key in parsedDateObj){
+        if(parseInt(parsedDateObj[key]["영업이익"])===max){
+          var maxKey=key;
+        };
     }
-
-  };
-  var max=Math.max.apply(null,arr);
-  dateTotalProfit.innerHTML=parsedDateObj["총영업이익"];
-  for(key in parsedDateObj){
-      if(parseInt(parsedDateObj[key]["영업이익"])===max){
-        var maxKey=key;
-      };
+    topItem.innerHTML=maxKey;
   }
-  topItem.innerHTML=maxKey;
-
 };
 
 
