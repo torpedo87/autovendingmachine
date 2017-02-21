@@ -3,20 +3,8 @@ var ajaxURL="http://localhost/codesquad/project/vendingmachine/data.json"
 var balanceDiv=document.querySelector(".balance");
 var messageDiv=document.querySelector(".message");
 var returnDiv=document.querySelector(".returnMoney");
-var time=formatDate();
-var stockNameList=document.querySelectorAll('.stockName');
-var stockDateList=document.querySelectorAll(".stockDate");
-var stockCostList=document.querySelectorAll('.stockCost');
-var stockNumberList=document.querySelectorAll('.stockNumber');
-var stockIncomeList=document.querySelectorAll('.stockIncome');
-var stockProfitList=document.querySelectorAll('.stockProfit');
-var totalProfit=document.querySelector('.totalProfit');
-var totalIncome=document.querySelector('.totalIncome');
-var priceList = document.querySelectorAll(".price");
-var nameList = document.querySelectorAll(".name");
 var availableDiv = document.querySelectorAll(".available");
 var nav=document.querySelector('nav');
-var slidingDiv=nav.querySelector('div');
 var itemDropdown=document.querySelector('.itemDropdown');
 var stockManagerName=document.querySelector('.stockManagerName');
 var stockManagerNumber=document.querySelector('.stockManagerNumber');
@@ -25,8 +13,8 @@ var profitBtn=document.querySelector('.profitBtn');
 var dateFinder=document.querySelector('.dateFinder');
 var dateTotalProfit=document.querySelector('.dateTotalProfit');
 var topItem=document.querySelector('.topItem');
-var dateObj=localStorage.getItem(dateFinder.value);
-var parsedDateObj=JSON.parse(dateObj);
+var main=document.querySelector('main');
+var logTable=document.querySelector(".logTable");
 
 
 document.addEventListener("DOMContentLoaded",function(){
@@ -40,7 +28,7 @@ function init(){
     // 잔액초기화 함수
     function returnMoney(){
       balanceDiv.innerHTML=0;
-      availableSignal(priceList, nameList, stockNumberList);
+      availableSignal();
     }
 
     //ajax 함수
@@ -56,25 +44,26 @@ function init(){
   //storage에 저장된 재고들을 자판기 메뉴버튼에 표시하기, 로그테이블
   function storageToDiv(rawData){
     var parsedStockData = JSON.parse(rawData);
-    var main=document.querySelector('main');
-    var logTable=document.querySelector(".logTable");
-    // var stockDateList=document.querySelectorAll(".stockDate");
-    // var stockNumberList=document.querySelectorAll('.stockNumber');
-    // var stockIncomeList=document.querySelectorAll('.stockIncome');
-    // var stockProfitList=document.querySelectorAll('.stockProfit');
-    // var stockNumberList=document.querySelectorAll('.stockNumber');
-    // var totalIncome=document.querySelector('.totalIncome');
-    // var totalProfit=document.querySelector('.totalProfit');
-    // var nameList = document.querySelectorAll(".name");
     makeMenuLogTable(parsedStockData,main,logTable);
     ItemtoDropdown(parsedStockData);
     makeTotalMenu();
+    var stockNameList=document.querySelectorAll('.stockName');
+    var stockDateList=document.querySelectorAll(".stockDate");
+    var stockCostList=document.querySelectorAll('.stockCost');
+    var stockNumberList=document.querySelectorAll('.stockNumber');
+    var stockIncomeList=document.querySelectorAll('.stockIncome');
+    var stockProfitList=document.querySelectorAll('.stockProfit');
+    var totalProfit=document.querySelector('.totalProfit');
+    var totalIncome=document.querySelector('.totalIncome');
+    var priceList = document.querySelectorAll(".price");
+    var nameList = document.querySelectorAll(".name");
     getTotal(stockIncomeList,totalIncome);
     getTotal(stockProfitList,totalProfit);
     adultClass(parsedStockData, nameList);
     getStorage(parsedStockData,stockNumberList,stockIncomeList,stockProfitList);
 
     function replaceAll(strData,data,j){
+      var time=formatDate();
       var a=strData.replace("{{hotOrCold}}",data[j].hotOrCold);
       var b=a.replace("{{url}}",data[j].url);
       var c=b.replace("{{name}}",data[j].name);
@@ -93,13 +82,14 @@ function init(){
         a.insertAdjacentHTML('beforeend',replaceAll(dataStr,data,i));
         b.insertAdjacentHTML('beforeend',replaceAll(stockStr,data,i));
       }
+
+       nameList = document.querySelectorAll(".name");
     }
 
 
     //재고 추가 품목명 검색창에 넣어놓기
     function ItemtoDropdown(data){
       var itemStr="<a href='#'>{{name}}</a>"
-      var itemDropdown=document.querySelector('.itemDropdown');
       for(var i=0; i<data.length; i++){
         itemDropdown.insertAdjacentHTML('beforeend',replaceAll(itemStr,data,i));
       }
@@ -116,14 +106,14 @@ function init(){
         for(var i=0; i<listA.length; i++){
           result=result+listA[i].innerHTML*1;
         }
-        totalA.innerHTML=result;
+          totalA.innerHTML=result;
     };
 
     //19세 이상 제품에 클래스 추가
-    function adultClass(data, listA){
+    function adultClass(data, list){
       for(var i=0; i<data.length; i++){
-        if(data[i].ageLimit>=19){
-          listA[i].classList.add("adult");
+        if(data[i].ageLimit>=19 && typeof list==="object"){
+          list[i].classList.add("adult");
         }
       }
     };
@@ -164,13 +154,20 @@ function init(){
             }
           }
         }
-      }getTotal(listB,totalIncome);
-      getTotal(listC,totalProfit);
+      }
+      getTotal(stockIncomeList,totalIncome);
+      getTotal(stockProfitList,totalProfit);
     }
   };
 
-
 };
+
+
+
+
+
+
+
 
 
 
@@ -185,19 +182,23 @@ function formatDate() {
 }
 
 //로그테이블 내용을 로컬스토리지에 넣기
-function tableToStorage(ListA, ListB, ListC, ListD, totalD){
+function tableToStorage(){
+  var time=formatDate();
+  var stockNameList=document.querySelectorAll('.stockName');
+  var stockNumberList=document.querySelectorAll('.stockNumber');
+  var stockIncomeList=document.querySelectorAll('.stockIncome');
+  var stockProfitList=document.querySelectorAll('.stockProfit');
+  var totalProfit=document.querySelector('.totalProfit');
   var tableObj={};
   for(var i=0; i<stockNameList.length; i++){
-    tableObj[ListA[i].innerHTML]={};
-    tableObj[ListA[i].innerHTML]["재고"]=ListB[i].innerHTML;
-    tableObj[ListA[i].innerHTML]["매출액"]=ListC[i].innerHTML;
-    tableObj[ListA[i].innerHTML]["영업이익"]=ListD[i].innerHTML;
-  }tableObj["총영업이익"]=totalD.innerHTML;
+    tableObj[stockNameList[i].innerHTML]={};
+    tableObj[stockNameList[i].innerHTML]["재고"]=stockNumberList[i].innerHTML;
+    tableObj[stockNameList[i].innerHTML]["매출액"]=stockIncomeList[i].innerHTML;
+    tableObj[stockNameList[i].innerHTML]["영업이익"]=stockProfitList[i].innerHTML;
+  }tableObj["총영업이익"]=totalProfit.innerHTML;
   var stringifiedTableObj=JSON.stringify(tableObj);
   localStorage.setItem(time,stringifiedTableObj);
 }
-
-
 
 // 돈 투입하고 구매가능한 표시(드래그앤드롭)
 function allowDrop(ev) {
@@ -226,27 +227,31 @@ function drop(ev) {
     }
     balanceDiv.innerHTML= balanceDiv.innerHTML*1 + howMuch(data);
     //잔액에 따른 구매가능표시
-    availableSignal(priceList, nameList, stockNumberList);
+    availableSignal();
 }
 
 
 //활성화 버튼표시하기
-function availableSignal(ListA, ListB, ListC){
-  for(var i=0; i<ListA.length; i++){
-    if(balanceDiv.innerHTML*1>=ListA[i].innerHTML*1 && ListC[i].innerHTML*1>0){
-      ListB[i].classList.add("available");
+function availableSignal(){
+  var priceList = document.querySelectorAll(".price");
+  var nameList = document.querySelectorAll(".name");
+  var stockNumberList=document.querySelectorAll(".stockNumber");
+  for(var i=0; i<priceList.length; i++){
+    if(balanceDiv.innerHTML*1>=priceList[i].innerHTML*1 && stockNumberList[i].innerHTML*1>0){
+      nameList[i].classList.add("available");
     }else{
-      ListB[i].classList.remove("available");
+      nameList[i].classList.remove("available");
     }
   }
-  setBtnEvent(availableDiv);
+  setBtnEvent();
 };
 
 
 // 활성화된 버튼이벤트 등록
-function setBtnEvent(div){
-  for(var i=0; i<div.length; i++){
-  div[i].addEventListener('click', pressAvailableBtn);
+function setBtnEvent(){
+  var availableDiv=document.querySelectorAll('.available');
+  for(var i=0; i<availableDiv.length; i++){
+    availableDiv[i].addEventListener('click', pressAvailableBtn);
   }
 };
 
@@ -255,10 +260,10 @@ function pressAvailableBtn(evt){
     var answer=prompt("what is your age?");
       if(parseInt(answer)>=19){
         reduceBalance(evt);
-        reduceStock(evt, stockNumberList, stockNameList);
-        logMessage(evt, stockNameList, stockDateList, stockIncomeList, stockProfitList, totalIncome, totalProfit);
-        sliding(evt, nav, slidingDiv);
-        availableSignal(priceList, nameList, stockNumberList);
+        reduceStock(evt);
+        logMessage(evt);
+        sliding(evt);
+        availableSignal();
       }
       else{
         evt.target.classList.remove("available");
@@ -267,10 +272,10 @@ function pressAvailableBtn(evt){
       }
   }else{
     reduceBalance(evt);
-    reduceStock(evt, stockNumberList, stockNameList);
-    logMessage(evt, stockNameList, stockDateList, stockIncomeList, stockProfitList, totalIncome, totalProfit);
-    sliding(evt, nav, slidingDiv);
-    availableSignal(priceList, nameList, stockNumberList);
+    reduceStock(evt);
+    logMessage(evt);
+    sliding(evt);
+    availableSignal();
   }
 };
 
@@ -282,13 +287,15 @@ function reduceBalance(evt){
 }
 
 //구매시 재고 감소
-function reduceStock(evt, ListA, ListB){
-  for(var i=0; i<ListA.length; i++){
-    if(evt.target.innerHTML===ListB[i].innerHTML && evt.target.classList.contains("available")){
+function reduceStock(evt){
+  var stockNumberList=document.querySelectorAll(".stockNumber");
+  var stockNameList=document.querySelectorAll(".stockName");
+  for(var i=0; i<stockNumberList.length; i++){
+    if(evt.target.innerHTML===stockNameList[i].innerHTML && evt.target.classList.contains("available")){
       //로그테이블 변경(재고)
-      ListA[i].innerHTML= ListA[i].innerHTML*1-1;
+      stockNumberList[i].innerHTML= stockNumberList[i].innerHTML*1-1;
       //로컬스토리지 변경(재고)
-      tableToStorage(ListB, ListA, stockIncomeList, stockProfitList, totalProfit);
+      tableToStorage();
     }
   }
 }
@@ -312,33 +319,43 @@ window.onclick = function(event) {
 
 
 //구매시 슬라이딩 애니메이션(클론 후 nav로 내려가기)
-function sliding(evt, divA, divB){
+function sliding(evt){
   var cloneImg=evt.target.previousElementSibling.cloneNode(true);
+  var nav=document.querySelector('nav');
+  var slidingDiv=nav.querySelector('div');
   if(evt.target.classList.contains("available")){
-    divB.appendChild(cloneImg);
-    divB.style.transition='transform 3s';
-    divB.style.transform='translate3d(0,700px,0)';
-    divB.addEventListener('transitionend',removeImg);
+    slidingDiv.appendChild(cloneImg);
+    slidingDiv.style.transition='transform 3s';
+    slidingDiv.style.transform='translate3d(0,700px,0)';
+    slidingDiv.addEventListener('transitionend',removeImg);
     function removeImg(){
-      divB.removeChild(divB.childNodes[0]);
-      divA.innerHTML="<div style='transform: translate3d(0,0px,0)'></div>";
+      slidingDiv.removeChild(slidingDiv.childNodes[0]);
+      nav.innerHTML="<div style='transform: translate3d(0,0px,0)'></div>";
     }
   }
 };
 
 
+
 //구매시 매출액 증가, 영업이익 증가
-function logMessage(evt, ListA, ListB, ListC, ListD, totalC, totalD){
+function logMessage(evt){
+  var time=formatDate();
+  var stockNameList=document.querySelectorAll(".stockName");
+  var stockDateList=document.querySelectorAll(".stockDate");
+  var stockIncomeList=document.querySelectorAll(".stockIncome");
+  var stockProfitList=document.querySelectorAll(".stockProfit");
+  var totalProfit=document.querySelector('.totalProfit');
+  var totalIncome=document.querySelector('.totalIncome');
   if(evt.target.classList.contains("available")){
-    for(var i=0; i<ListA.length; i++){
-      if(ListA[i].innerHTML===evt.target.innerHTML && ListB[i].innerHTML===time){
+    for(var i=0; i<stockNameList.length; i++){
+      if(stockNameList[i].innerHTML===evt.target.innerHTML && stockDateList[i].innerHTML===time){
         //로그테이블 변경(매출액,영업이익,총매출액,총영업이익)
-        ListC[i].innerHTML=ListC[i].innerHTML*1+evt.target.nextElementSibling.innerHTML*1;
-        ListD[i].innerHTML=ListD[i].innerHTML*1+evt.target.nextElementSibling.innerHTML*1;
-        totalC.innerHTML=totalC.innerHTML*1+evt.target.nextElementSibling.innerHTML*1;
-        totalD.innerHTML=totalD.innerHTML*1+evt.target.nextElementSibling.innerHTML*1;
+        stockIncomeList[i].innerHTML=stockIncomeList[i].innerHTML*1+evt.target.nextElementSibling.innerHTML*1;
+        stockProfitList[i].innerHTML=stockProfitList[i].innerHTML*1+evt.target.nextElementSibling.innerHTML*1;
+        totalIncome.innerHTML=totalIncome.innerHTML*1+evt.target.nextElementSibling.innerHTML*1;
+        totalProfit.innerHTML=totalProfit.innerHTML*1+evt.target.nextElementSibling.innerHTML*1;
         //로컬스토리지 변경(매출액,영업이익,총영업이익)
-        tableToStorage(ListA, stockNumberList, ListC, ListD, totalD);
+        tableToStorage();
       }
     }
   }
@@ -346,14 +363,19 @@ function logMessage(evt, ListA, ListB, ListC, ListD, totalC, totalD){
 
 //재고 구매시 로그테이블,로컬스토리지 변경 (재고수 증가, 영업이익 감소, 총영업이익감소)
 itemDropdown.addEventListener('click',inputItemName);
-function inputItemName(evt, stockManagerName, itemDropdown){
+function inputItemName(evt){
   stockManagerName.value=evt.target.innerText;
   itemDropdown.classList.toggle("show");
 };
 stockBtn.addEventListener('click',stockManager);
 profitBtn.addEventListener('click',profitManager);
 
-function stockManager(stockManagerName, stockManagerNumber, stockNameList, stockNumberList, stockProfitList, stockCostList, totalProfit){
+function stockManager(){
+  var stockNameList=document.querySelectorAll('.stockName');
+  var stockNumberList=document.querySelectorAll('.stockNumber');
+  var stockProfitList=document.querySelectorAll('.stockProfit');
+  var totalProfit=document.querySelector('.totalProfit');
+  var stockCostList=document.querySelectorAll('.stockCost');
   for(var i=0; i<stockNameList.length; i++){
     if(stockManagerName.value===stockNameList[i].innerHTML && parseInt(stockManagerNumber.value)>0){
       //로그테이블 변경
@@ -361,17 +383,19 @@ function stockManager(stockManagerName, stockManagerNumber, stockNameList, stock
       stockProfitList[i].innerHTML=stockProfitList[i].innerHTML*1-parseInt(stockManagerNumber.value)*stockCostList[i].innerHTML*1;
       totalProfit.innerHTML=totalProfit.innerHTML*1-parseInt(stockManagerNumber.value)*stockCostList[i].innerHTML*1;
       //로컬스토리지 변경
-      tableToStorage(stockNameList, stockNumberList, stockIncomeList, stockProfitList, totalProfit);
+      tableToStorage();
     }
   }
   stockManagerName.value="";
   stockManagerNumber.value="";
   //구매가능표시 리셋
-  availableSignal(priceList, nameList, stockNumberList);
+  availableSignal();
 }
 
 //날짜별 총수익, 1순위품목 확인
-function profitManager(dateFinder, dateTotalProfit, topItem, dateObj, parsedDateObj){
+function profitManager(){
+  var dateObj=localStorage.getItem(dateFinder.value);
+  var parsedDateObj=JSON.parse(dateObj);
   if(parsedDateObj===null || parsedDateObj===undefined){
     dateTotalProfit.innerHTML="없음";
     topItem.innerHTML="없음";
