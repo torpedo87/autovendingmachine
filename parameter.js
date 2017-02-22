@@ -248,7 +248,7 @@ function setBtnEvent(){
 };
 
 function pressAvailableBtn(evt){
-  if(evt.target.classList.contains("adult")){
+  if(evt.target.classList.contains("adult")&&evt.target.classList.contains("available")){
     var answer=prompt("what is your age?");
       if(parseInt(answer)>=19){
         reduceBalance(evt);
