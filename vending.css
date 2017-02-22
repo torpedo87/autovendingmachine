@@ -54,7 +54,11 @@ footer{
 }
 .content main>*>.available{
   background-color: yellow;
-  cursor: pointer;
+    cursor: pointer;
+    box-shadow: 0 5px #983;
+    outline: none;
+    color: #3F51B5;
+    border-radius: 9px;
 }
 .content main>.hot{
   border-color: red;
@@ -72,6 +76,10 @@ footer{
   height: 25px;
   border-top: 1px solid #23b300;
   border-bottom: 1px solid #23b300;
+}
+.content main .name:active{
+  box-shadow: 0 5px #666;
+  transform: translateY(4px);
 }
 aside>div:nth-child(2){
   font-size: 30px;

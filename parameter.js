@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded",function(){
     var slidingDiv=nav.querySelector('div');
     if(balancePrice>0){
       slidingDiv.appendChild(cloneImg);
-      slidingDiv.style.transition='transform 1s';
+      slidingDiv.style.transition='transform 1s ease-in';
       slidingDiv.style.transform='translate3d(0,700px,0)';
       slidingDiv.addEventListener('transitionend',removeImg);
       function removeImg(){
@@ -70,7 +70,7 @@ document.addEventListener("DOMContentLoaded",function(){
     var slidingDiv=nav.querySelector('div');
     if(balancePrice>0){
       slidingDiv.appendChild(cloneImg);
-      slidingDiv.style.transition='transform 1s';
+      slidingDiv.style.transition='transform 1s ease-in';
       slidingDiv.style.transform='translate3d(0,700px,0)';
       slidingDiv.addEventListener('transitionend',removeImg);
       function removeImg(){
@@ -369,7 +369,7 @@ function sliding(evt){
   var slidingDiv=nav.querySelector('div');
   if(evt.target.classList.contains("available")){
     slidingDiv.appendChild(cloneImg);
-    slidingDiv.style.transition='transform 3s';
+    slidingDiv.style.transition='transform 1s ease-in';
     slidingDiv.style.transform='translate3d(0,700px,0)';
     slidingDiv.addEventListener('transitionend',removeImg);
     function removeImg(){
