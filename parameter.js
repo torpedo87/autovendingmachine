@@ -5,6 +5,7 @@ var messageDiv=document.querySelector(".message");
 var returnDiv=document.querySelector(".returnMoney");
 var availableDiv = document.querySelectorAll(".available");
 var nav=document.querySelector('nav');
+var slidingDiv=nav.querySelector('div');
 var itemDropdown=document.querySelector('.itemDropdown');
 var stockManagerName=document.querySelector('.stockManagerName');
 var stockManagerNumber=document.querySelector('.stockManagerNumber');
@@ -21,11 +22,62 @@ document.addEventListener("DOMContentLoaded",function(){
   ajax();
   returnDiv.addEventListener('click',returnMoney);
 
-
   // 잔액초기화 함수
   function returnMoney(){
-    balanceDiv.innerHTML=0;
-    availableSignal();
+    var balancePrice=balanceDiv.innerHTML*1;
+    //500원 이상일때 500원씩 감소
+    var id=setInterval(reduceBalance,2500);
+    function reduceBalance(){
+      if(balancePrice===0){
+        clearInterval(id);
+        availableSignal();
+      }else if(balancePrice>=500){
+        bigCoinSliding();
+        balanceDiv.innerHTML=balanceDiv.innerHTML*1-500;
+        balancePrice=balanceDiv.innerHTML*1;
+        availableSignal();
+      }else{
+        smallCoinSliding();
+        balanceDiv.innerHTML=balanceDiv.innerHTML*1-100;
+        balancePrice=balanceDiv.innerHTML*1;
+        availableSignal();
+      }
+    }
+
+  }
+
+  function bigCoinSliding(){
+    var balancePrice=balanceDiv.innerHTML*1;
+    var cloneImg=document.querySelector("#bigCoin").cloneNode(true);
+    var nav=document.querySelector('nav');
+    var slidingDiv=nav.querySelector('div');
+    if(balancePrice>0){
+      slidingDiv.appendChild(cloneImg);
+      slidingDiv.style.transition='transform 1s';
+      slidingDiv.style.transform='translate3d(0,700px,0)';
+      slidingDiv.addEventListener('transitionend',removeImg);
+      function removeImg(){
+        slidingDiv.removeChild(slidingDiv.childNodes[0]);
+        nav.innerHTML="<div style='transform: translate3d(0,0px,0)'></div>";
+      }
+    }
+  }
+
+  function smallCoinSliding(){
+    var balancePrice=balanceDiv.innerHTML*1;
+    var cloneImg=document.querySelector("#smallCoin").cloneNode(true);
+    var nav=document.querySelector('nav');
+    var slidingDiv=nav.querySelector('div');
+    if(balancePrice>0){
+      slidingDiv.appendChild(cloneImg);
+      slidingDiv.style.transition='transform 1s';
+      slidingDiv.style.transform='translate3d(0,700px,0)';
+      slidingDiv.addEventListener('transitionend',removeImg);
+      function removeImg(){
+        slidingDiv.removeChild(slidingDiv.childNodes[0]);
+        nav.innerHTML="<div style='transform: translate3d(0,0px,0)'></div>";
+      }
+    }
   }
 
   //ajax 함수

@@ -118,8 +118,7 @@ nav, aside{
   ondragstart="dragstart_handler(event);"
 }
 nav>div>img{
-  /*display: block;*/
-  width: 120px;
+  width: 100px;
   height: 100px;
 }
 img#inputHole{
