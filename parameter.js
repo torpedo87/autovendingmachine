@@ -18,154 +18,146 @@ var logTable=document.querySelector(".logTable");
 
 
 document.addEventListener("DOMContentLoaded",function(){
-  init();
-});
+  ajax();
+  returnDiv.addEventListener('click',returnMoney);
 
-function init(){
-    ajax();
-    returnDiv.addEventListener('click',returnMoney)
 
-    // 잔액초기화 함수
-    function returnMoney(){
-      balanceDiv.innerHTML=0;
-      availableSignal();
+  // 잔액초기화 함수
+  function returnMoney(){
+    balanceDiv.innerHTML=0;
+    availableSignal();
+  }
+
+  //ajax 함수
+  function ajax(){
+  var oReq = new XMLHttpRequest();
+  oReq.addEventListener("load",function(){       //콜백함수는 서버가 보내주면 시작한다 페이지가 로드되면 changeContent 함수 실행
+  storageToDiv(event.target.responseText);
+  });
+  oReq.open("GET", ajaxURL);
+  oReq.send();
+  };
+
+//storage에 저장된 재고들을 자판기 메뉴버튼에 표시하기, 로그테이블
+function storageToDiv(rawData){
+  var parsedStockData = JSON.parse(rawData);
+  makeMenuLogTable(parsedStockData,main,logTable);
+  ItemtoDropdown(parsedStockData);
+  makeTotalMenu();
+  var stockNameList=document.querySelectorAll('.stockName');
+  var stockDateList=document.querySelectorAll(".stockDate");
+  var stockCostList=document.querySelectorAll('.stockCost');
+  var stockNumberList=document.querySelectorAll('.stockNumber');
+  var stockIncomeList=document.querySelectorAll('.stockIncome');
+  var stockProfitList=document.querySelectorAll('.stockProfit');
+  var totalProfit=document.querySelector('.totalProfit');
+  var totalIncome=document.querySelector('.totalIncome');
+  var priceList = document.querySelectorAll(".price");
+  var nameList = document.querySelectorAll(".name");
+  getTotal(stockIncomeList,totalIncome);
+  getTotal(stockProfitList,totalProfit);
+  adultClass(parsedStockData, nameList);
+  getStorage(parsedStockData,stockNumberList,stockIncomeList,stockProfitList);
+
+  function replaceAll(strData,data,j){
+    var time=formatDate();
+    var a=strData.replace("{{hotOrCold}}",data[j].hotOrCold);
+    var b=a.replace("{{url}}",data[j].url);
+    var c=b.replace("{{name}}",data[j].name);
+    var d=c.replace("{{price}}",data[j].price);
+    var e=d.replace("{{stock}}",data[j].stock);
+    var f=e.replace("{{date}}",time);
+    var g=f.replace("{{cost}}",data[j].cost);
+    return g;
+  };
+
+  //메뉴버튼 넣기, 로그테이블 만들기
+  function makeMenuLogTable(data,a,b){
+    var dataStr=document.querySelector('#dataTemplate').innerHTML;
+    var stockStr=document.querySelector('#stockTemplate').innerHTML;
+    for(var i=0; i<parsedStockData.length; i++){
+      a.insertAdjacentHTML('beforeend',replaceAll(dataStr,data,i));
+      b.insertAdjacentHTML('beforeend',replaceAll(stockStr,data,i));
     }
 
-    //ajax 함수
-    function ajax(){
-    var oReq = new XMLHttpRequest();
-    oReq.addEventListener("load",function(){       //콜백함수는 서버가 보내주면 시작한다 페이지가 로드되면 changeContent 함수 실행
-    storageToDiv(event.target.responseText);
-    });
-    oReq.open("GET", ajaxURL);
-    oReq.send();
-    };
+     nameList = document.querySelectorAll(".name");
+  }
 
-  //storage에 저장된 재고들을 자판기 메뉴버튼에 표시하기, 로그테이블
-  function storageToDiv(rawData){
-    var parsedStockData = JSON.parse(rawData);
-    makeMenuLogTable(parsedStockData,main,logTable);
-    ItemtoDropdown(parsedStockData);
-    makeTotalMenu();
-    var stockNameList=document.querySelectorAll('.stockName');
-    var stockDateList=document.querySelectorAll(".stockDate");
-    var stockCostList=document.querySelectorAll('.stockCost');
-    var stockNumberList=document.querySelectorAll('.stockNumber');
-    var stockIncomeList=document.querySelectorAll('.stockIncome');
-    var stockProfitList=document.querySelectorAll('.stockProfit');
-    var totalProfit=document.querySelector('.totalProfit');
-    var totalIncome=document.querySelector('.totalIncome');
-    var priceList = document.querySelectorAll(".price");
-    var nameList = document.querySelectorAll(".name");
-    getTotal(stockIncomeList,totalIncome);
-    getTotal(stockProfitList,totalProfit);
-    adultClass(parsedStockData, nameList);
-    getStorage(parsedStockData,stockNumberList,stockIncomeList,stockProfitList);
 
-    function replaceAll(strData,data,j){
-      var time=formatDate();
-      var a=strData.replace("{{hotOrCold}}",data[j].hotOrCold);
-      var b=a.replace("{{url}}",data[j].url);
-      var c=b.replace("{{name}}",data[j].name);
-      var d=c.replace("{{price}}",data[j].price);
-      var e=d.replace("{{stock}}",data[j].stock);
-      var f=e.replace("{{date}}",time);
-      var g=f.replace("{{cost}}",data[j].cost);
-      return g;
-    };
+  //재고 추가 품목명 검색창에 넣어놓기
+  function ItemtoDropdown(data){
+    var itemStr="<a href='#'>{{name}}</a>"
+    for(var i=0; i<data.length; i++){
+      itemDropdown.insertAdjacentHTML('beforeend',replaceAll(itemStr,data,i));
+    }
+  }
 
-    //메뉴버튼 넣기, 로그테이블 만들기
-    function makeMenuLogTable(data,a,b){
-      var dataStr=document.querySelector('#dataTemplate').innerHTML;
-      var stockStr=document.querySelector('#stockTemplate').innerHTML;
-      for(var i=0; i<parsedStockData.length; i++){
-        a.insertAdjacentHTML('beforeend',replaceAll(dataStr,data,i));
-        b.insertAdjacentHTML('beforeend',replaceAll(stockStr,data,i));
+  //로그테이블 맨 밑 총매출액, 총영업이익 메뉴 만들기
+  function makeTotalMenu(){
+    logTable.insertAdjacentHTML('beforeend',"<tr class='total'><td>TOTAL</td><td></td><td class='totalIncome'>0</td><td></td><td></td><td class='totalProfit'>0</td>");
+  }
+
+  //총매출액, 총영업이익 값 넣기
+  function getTotal(listA, totalA){
+      var result=0;
+      for(var i=0; i<listA.length; i++){
+        result=result+listA[i].innerHTML*1;
       }
+        totalA.innerHTML=result;
+  };
 
-       nameList = document.querySelectorAll(".name");
-    }
-
-
-    //재고 추가 품목명 검색창에 넣어놓기
-    function ItemtoDropdown(data){
-      var itemStr="<a href='#'>{{name}}</a>"
-      for(var i=0; i<data.length; i++){
-        itemDropdown.insertAdjacentHTML('beforeend',replaceAll(itemStr,data,i));
+  //19세 이상 제품에 클래스 추가
+  function adultClass(data, list){
+    for(var i=0; i<data.length; i++){
+      if(data[i].ageLimit>=19 && typeof list==="object"){
+        list[i].classList.add("adult");
       }
     }
+  };
 
-    //로그테이블 맨 밑 총매출액, 총영업이익 메뉴 만들기
-    function makeTotalMenu(){
-      logTable.insertAdjacentHTML('beforeend',"<tr class='total'><td>TOTAL</td><td></td><td class='totalIncome'>0</td><td></td><td></td><td class='totalProfit'>0</td>");
-    }
+  //가장 최근 로컬스토리지에 데이터 있으면 로그테이블로 가져오기
+  function getRecentTime(arr){
+    var orderedDates=arr.sort(function(a,b){
+        return Date.parse(a) < Date.parse(b);
+        });
+    return orderedDates[0];
+  };
 
-    //총매출액, 총영업이익 값 넣기
-    function getTotal(listA, totalA){
-        var result=0;
-        for(var i=0; i<listA.length; i++){
-          result=result+listA[i].innerHTML*1;
-        }
-          totalA.innerHTML=result;
-    };
-
-    //19세 이상 제품에 클래스 추가
-    function adultClass(data, list){
-      for(var i=0; i<data.length; i++){
-        if(data[i].ageLimit>=19 && typeof list==="object"){
-          list[i].classList.add("adult");
-        }
-      }
-    };
-
-    //가장 최근 로컬스토리지에 데이터 있으면 로그테이블로 가져오기
-    function getRecentTime(arr){
-      var orderedDates=arr.sort(function(a,b){
-          return Date.parse(a) < Date.parse(b);
-          });
-      return orderedDates[0];
-    };
-
-    function getStorage(data, ListA, ListB, ListC){
-      var timeArr=Object.keys(localStorage);
-      var recentTime=getRecentTime(timeArr);
-      var recentObj=localStorage.getItem(recentTime);
-      var parsedObj=JSON.parse(recentObj);
-      if(parsedObj!==undefined || parsedObj!==null){
-        var keyArr=Object.keys(parsedObj);
-        for(var i=0; i<keyArr.length; i++){
-          if(parsedObj[keyArr[i]]!==null && parsedObj[keyArr[i]]["재고"]!==undefined){
-            for(var j=0; j<data.length; j++){
-              if(data[j].name===keyArr[i]){
-                ListA[j].innerHTML=parsedObj[keyArr[i]]["재고"];
-              }
+  function getStorage(data, ListA, ListB, ListC){
+    var timeArr=Object.keys(localStorage);
+    var recentTime=getRecentTime(timeArr);
+    var recentObj=localStorage.getItem(recentTime);
+    var parsedObj=JSON.parse(recentObj);
+    if(parsedObj!==undefined || parsedObj!==null){
+      var keyArr=Object.keys(parsedObj);
+      for(var i=0; i<keyArr.length; i++){
+        if(parsedObj[keyArr[i]]!==null && parsedObj[keyArr[i]]["재고"]!==undefined){
+          for(var j=0; j<data.length; j++){
+            if(data[j].name===keyArr[i]){
+              ListA[j].innerHTML=parsedObj[keyArr[i]]["재고"];
             }
-          }if(parsedObj[keyArr[i]]!==null && parsedObj[keyArr[i]]["매출액"]!==undefined){
-            for(var j=0; j<data.length; j++){
-              if(data[j].name===keyArr[i]){
-                ListB[j].innerHTML=parsedObj[keyArr[i]]["매출액"];
-              }
+          }
+        }if(parsedObj[keyArr[i]]!==null && parsedObj[keyArr[i]]["매출액"]!==undefined){
+          for(var j=0; j<data.length; j++){
+            if(data[j].name===keyArr[i]){
+              ListB[j].innerHTML=parsedObj[keyArr[i]]["매출액"];
             }
-          }if(parsedObj[keyArr[i]]!==null && parsedObj[keyArr[i]]["영업이익"]!==undefined){
-            for(var j=0; j<data.length; j++){
-              if(data[j].name===keyArr[i]){
-                ListC[j].innerHTML=parsedObj[keyArr[i]]["영업이익"];
-              }
+          }
+        }if(parsedObj[keyArr[i]]!==null && parsedObj[keyArr[i]]["영업이익"]!==undefined){
+          for(var j=0; j<data.length; j++){
+            if(data[j].name===keyArr[i]){
+              ListC[j].innerHTML=parsedObj[keyArr[i]]["영업이익"];
             }
           }
         }
       }
-      getTotal(stockIncomeList,totalIncome);
-      getTotal(stockProfitList,totalProfit);
     }
-  };
-
+    getTotal(stockIncomeList,totalIncome);
+    getTotal(stockProfitList,totalProfit);
+  }
 };
 
-
-
-
-
+});
 
 
 
