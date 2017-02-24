@@ -62,7 +62,7 @@
 			<tr>
 				<td>
 					<div class="dropdownContainer">
-						<input type="text" placeholder="품목명" class="stockManagerName dropbtn" onclick="myFunction()">
+						<input type="text" placeholder="품목명" class="stockManagerName dropbtn" onclick="toggleContents()">
 
 							<div class="dropdownContent itemDropdown"></div>
 
@@ -98,6 +98,6 @@
 	<script type="stockTemplate" id="stockTemplate">
 		<tr class='stock'><td class='stockName'>{{name}}</td><td class='stockNumber'>{{stock}}</td><td class='stockIncome'>0</td><td class='stockDate'>{{date}}</td><td class='stockCost'>{{cost}}</td><td class='stockProfit'>0</td>
 	</script>
-	<script src="./vending.js"></script>
+	<script src="./parameter.js"></script>
 </body>
 </html>
