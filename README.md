@@ -1,6 +1,10 @@
-<<<<<<< HEAD
-#브랜치충돌예방을미리대처못해서브랜치를바꿔야함
-=======
-#자판기프로젝트
-코드스쿼드화이트레벨프로젝트
->>>>>>> gh-pages
+# AutoVendingMachine
+- 자판기 프로그래밍
+
+## demo [go](https://www.youtube.com/watch?v=TkU_U5Q1NB8)
+
+## skill
+- javascript
+- local storage
+- ajax
+
