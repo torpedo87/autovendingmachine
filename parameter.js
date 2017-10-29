@@ -1,12 +1,220 @@
-//흐름도를 그려라!!!!
-document.addEventListener("DOMContentLoaded",function(){
-  init();
-});
-//global variables 전역변수 모아놓기
+//전역변수
 var ajaxURL="http://localhost/codesquad/project/vendingmachine/data.json"
 var balanceDiv=document.querySelector(".balance");
 var messageDiv=document.querySelector(".message");
 var returnDiv=document.querySelector(".returnMoney");
+var availableDiv = document.querySelectorAll(".available");
+var nav=document.querySelector('nav');
+var slidingDiv=nav.querySelector('div');
+var itemDropdown=document.querySelector('.itemDropdown');
+var stockManagerName=document.querySelector('.stockManagerName');
+var stockManagerNumber=document.querySelector('.stockManagerNumber');
+var stockBtn=document.querySelector('.stockBtn');
+var profitBtn=document.querySelector('.profitBtn');
+var dateFinder=document.querySelector('.dateFinder');
+var dateTotalProfit=document.querySelector('.dateTotalProfit');
+var topItem=document.querySelector('.topItem');
+var main=document.querySelector('main');
+var logTable=document.querySelector(".logTable");
+
+
+document.addEventListener("DOMContentLoaded",function(){
+  ajax();
+  returnDiv.addEventListener('click',returnMoney);
+
+  // 잔액초기화 함수
+  function returnMoney(){
+    var balancePrice=balanceDiv.innerHTML*1;
+    //500원 이상일때 500원씩 감소
+    var id=setInterval(reduceBalance,2500);
+    function reduceBalance(){
+      if(balancePrice===0){
+        clearInterval(id);
+        availableSignal();
+      }else if(balancePrice>=500){
+        bigCoinSliding();
+        balanceDiv.innerHTML=balanceDiv.innerHTML*1-500;
+        balancePrice=balanceDiv.innerHTML*1;
+        availableSignal();
+      }else{
+        smallCoinSliding();
+        balanceDiv.innerHTML=balanceDiv.innerHTML*1-100;
+        balancePrice=balanceDiv.innerHTML*1;
+        availableSignal();
+      }
+    }
+
+  }
+
+  function bigCoinSliding(){
+    var balancePrice=balanceDiv.innerHTML*1;
+    var cloneImg=document.querySelector("#bigCoin").cloneNode(true);
+    var nav=document.querySelector('nav');
+    var slidingDiv=nav.querySelector('div');
+    if(balancePrice>0){
+      slidingDiv.appendChild(cloneImg);
+      slidingDiv.style.transition='transform 1s ease-in';
+      slidingDiv.style.transform='translate3d(0,700px,0)';
+      slidingDiv.addEventListener('transitionend',removeImg);
+      function removeImg(){
+        slidingDiv.removeChild(slidingDiv.childNodes[0]);
+        nav.innerHTML="<div style='transform: translate3d(0,0px,0)'></div>";
+      }
+    }
+  }
+
+  function smallCoinSliding(){
+    var balancePrice=balanceDiv.innerHTML*1;
+    var cloneImg=document.querySelector("#smallCoin").cloneNode(true);
+    var nav=document.querySelector('nav');
+    var slidingDiv=nav.querySelector('div');
+    if(balancePrice>0){
+      slidingDiv.appendChild(cloneImg);
+      slidingDiv.style.transition='transform 1s ease-in';
+      slidingDiv.style.transform='translate3d(0,700px,0)';
+      slidingDiv.addEventListener('transitionend',removeImg);
+      function removeImg(){
+        slidingDiv.removeChild(slidingDiv.childNodes[0]);
+        nav.innerHTML="<div style='transform: translate3d(0,0px,0)'></div>";
+      }
+    }
+  }
+
+  //ajax 함수
+  function ajax(){
+  var oReq = new XMLHttpRequest();
+  oReq.addEventListener("load",function(){       //콜백함수는 서버가 보내주면 시작한다 페이지가 로드되면 changeContent 함수 실행
+  storageToDiv(event.target.responseText);
+  });
+  oReq.open("GET", ajaxURL);
+  oReq.send();
+  };
+
+//storage에 저장된 재고들을 자판기 메뉴버튼에 표시하기, 로그테이블
+function storageToDiv(rawData){
+  var parsedStockData = JSON.parse(rawData);
+  makeMenuLogTable(parsedStockData,main,logTable);
+  ItemtoDropdown(parsedStockData);
+  makeTotalMenu();
+  var stockNameList=document.querySelectorAll('.stockName');
+  var stockDateList=document.querySelectorAll(".stockDate");
+  var stockCostList=document.querySelectorAll('.stockCost');
+  var stockNumberList=document.querySelectorAll('.stockNumber');
+  var stockIncomeList=document.querySelectorAll('.stockIncome');
+  var stockProfitList=document.querySelectorAll('.stockProfit');
+  var totalProfit=document.querySelector('.totalProfit');
+  var totalIncome=document.querySelector('.totalIncome');
+  var priceList = document.querySelectorAll(".price");
+  var nameList = document.querySelectorAll(".name");
+  getTotal(stockIncomeList,totalIncome);
+  getTotal(stockProfitList,totalProfit);
+  adultClass(parsedStockData, nameList);
+  getStorage(parsedStockData,stockNumberList,stockIncomeList,stockProfitList);
+
+  function replaceAll(strData,data,j){
+    var time=formatDate();
+    var a=strData.replace("{{hotOrCold}}",data[j].hotOrCold);
+    var b=a.replace("{{url}}",data[j].url);
+    var c=b.replace("{{name}}",data[j].name);
+    var d=c.replace("{{price}}",data[j].price);
+    var e=d.replace("{{stock}}",data[j].stock);
+    var f=e.replace("{{date}}",time);
+    var g=f.replace("{{cost}}",data[j].cost);
+    return g;
+  };
+
+  //메뉴버튼 넣기, 로그테이블 만들기
+  function makeMenuLogTable(data,a,b){
+    var dataStr=document.querySelector('#dataTemplate').innerHTML;
+    var stockStr=document.querySelector('#stockTemplate').innerHTML;
+    for(var i=0; i<parsedStockData.length; i++){
+      a.insertAdjacentHTML('beforeend',replaceAll(dataStr,data,i));
+      b.insertAdjacentHTML('beforeend',replaceAll(stockStr,data,i));
+    }
+
+     nameList = document.querySelectorAll(".name");
+  }
+
+
+  //재고 추가 품목명 검색창에 넣어놓기
+  function ItemtoDropdown(data){
+    var itemStr="<a href='#'>{{name}}</a>"
+    for(var i=0; i<data.length; i++){
+      itemDropdown.insertAdjacentHTML('beforeend',replaceAll(itemStr,data,i));
+    }
+  }
+
+  //로그테이블 맨 밑 총매출액, 총영업이익 메뉴 만들기
+  function makeTotalMenu(){
+    logTable.insertAdjacentHTML('beforeend',"<tr class='total'><td>TOTAL</td><td></td><td class='totalIncome'>0</td><td></td><td></td><td class='totalProfit'>0</td>");
+  }
+
+  //총매출액, 총영업이익 값 넣기
+  function getTotal(listA, totalA){
+      var result=0;
+      for(var i=0; i<listA.length; i++){
+        result=result+listA[i].innerHTML*1;
+      }
+        totalA.innerHTML=result;
+  };
+
+  //19세 이상 제품에 클래스 추가
+  function adultClass(data, list){
+    for(var i=0; i<data.length; i++){
+      if(data[i].ageLimit>=19 && typeof list==="object"){
+        list[i].classList.add("adult");
+      }
+    }
+  };
+
+  //가장 최근 로컬스토리지에 데이터 있으면 로그테이블로 가져오기
+  function getRecentTime(arr){
+    var orderedDates=arr.sort(function(a,b){
+        return Date.parse(a) < Date.parse(b);
+        });
+    return orderedDates[0];
+  };
+
+  function getStorage(data, ListA, ListB, ListC){
+    var timeArr=Object.keys(localStorage);
+    var recentTime=getRecentTime(timeArr);
+    var recentObj=localStorage.getItem(recentTime);
+    var parsedObj=JSON.parse(recentObj);
+    if(parsedObj!==undefined || parsedObj!==null){
+      var keyArr=Object.keys(parsedObj);
+      for(var i=0; i<keyArr.length; i++){
+        if(parsedObj[keyArr[i]]!==null && parsedObj[keyArr[i]]["재고"]!==undefined){
+          for(var j=0; j<data.length; j++){
+            if(data[j].name===keyArr[i]){
+              ListA[j].innerHTML=parsedObj[keyArr[i]]["재고"];
+            }
+          }
+        }if(parsedObj[keyArr[i]]!==null && parsedObj[keyArr[i]]["매출액"]!==undefined){
+          for(var j=0; j<data.length; j++){
+            if(data[j].name===keyArr[i]){
+              ListB[j].innerHTML=parsedObj[keyArr[i]]["매출액"];
+            }
+          }
+        }if(parsedObj[keyArr[i]]!==null && parsedObj[keyArr[i]]["영업이익"]!==undefined){
+          for(var j=0; j<data.length; j++){
+            if(data[j].name===keyArr[i]){
+              ListC[j].innerHTML=parsedObj[keyArr[i]]["영업이익"];
+            }
+          }
+        }
+      }
+    }
+    getTotal(stockIncomeList,totalIncome);
+    getTotal(stockProfitList,totalProfit);
+  }
+};
+
+});
+
+
+
+
+
 function formatDate() {
     var d = new Date(),
         month = '' + (d.getMonth() + 1),
@@ -16,156 +224,10 @@ function formatDate() {
     if (day.length < 2) day = '0' + day;
     return [year, month, day].join('-');
 }
-var time=formatDate();
-
-function init(){
-  //ajax 호출
-    ajax();
-    // 반환레버 기능(잔액 초기화)
-    returnDiv.addEventListener('click',returnMoney)
-    function returnMoney(){
-      balanceDiv.innerHTML=0;
-      availableSignal();
-    }
-
-
-
-    function ajax(){
-    var oReq = new XMLHttpRequest();
-    oReq.addEventListener("load",function(){       //콜백함수는 서버가 보내주면 시작한다 페이지가 로드되면 changeContent 함수 실행
-    storageToDiv(event.target.responseText);
-    });
-    oReq.open("GET", ajaxURL);
-    oReq.send();
-    };
-
-  //storage에 저장된 재고들을 자판기 메뉴버튼에 표시하기, 로그테이블
-  function storageToDiv(rawData){
-    var parsedStockData = JSON.parse(rawData);
-    var main=document.querySelector('main');
-    var logTable=document.querySelector(".logTable");
-    var dataStr=document.querySelector('#dataTemplate').innerHTML;
-    var stockStr=document.querySelector('#stockTemplate').innerHTML;
-    function replaceAll(someData,j){
-      var a=someData.replace("{{hotOrCold}}",parsedStockData[j].hotOrCold);
-      var b=a.replace("{{url}}",parsedStockData[j].url);
-      var c=b.replace("{{name}}",parsedStockData[j].name);
-      var d=c.replace("{{price}}",parsedStockData[j].price);
-      var e=d.replace("{{stock}}",parsedStockData[j].stock);
-      var f=e.replace("{{date}}",time);
-      var g=f.replace("{{cost}}",parsedStockData[j].cost);
-      return g;
-    };
-
-    //메뉴버튼 넣기, 로그테이블 만들기
-    for(var i=0; i<parsedStockData.length; i++){
-      main.insertAdjacentHTML('beforeend',replaceAll(dataStr,i));
-      logTable.insertAdjacentHTML('beforeend',replaceAll(stockStr,i));
-    }
-    var stockIncomeList=document.querySelectorAll('.stockIncome');
-    var stockProfitList=document.querySelectorAll('.stockProfit');
-    var stockNumberList=document.querySelectorAll('.stockNumber');
-
-    //재고 추가 품목명 검색창에 넣어놓기
-    var itemStr="<a href='#'>{{name}}</a>"
-    var itemDropdown=document.querySelector('.itemDropdown');
-    for(var i=0; i<parsedStockData.length; i++){
-      itemDropdown.insertAdjacentHTML('beforeend',replaceAll(itemStr,i));
-    }
-
-    //로그테이블 맨 밑 총매출액, 총영업이익 메뉴 만들기
-    logTable.insertAdjacentHTML('beforeend',"<tr class='total'><td>TOTAL</td><td></td><td class='totalIncome'>0</td><td></td><td></td><td class='totalProfit'>0</td>");
-
-    //총매출액, 총영업이익 값 넣기
-    function getTotal(){
-      var totalIncome=document.querySelector('.totalIncome');
-      var totalProfit=document.querySelector('.totalProfit');
-      //총매출 합
-      function getTotalIncome(){
-        var result=0;
-        for(var i=0; i<stockIncomeList.length; i++){
-          result=result+stockIncomeList[i].innerHTML*1;
-        }return result;
-      }
-      totalIncome.innerHTML=getTotalIncome();
-
-      //총영업이익 합
-      function getTotalProfit(){
-        var result=0;
-        for(var i=0; i<stockProfitList.length; i++){
-          result=result+stockProfitList[i].innerHTML*1;
-        }return result;
-      }
-      totalProfit.innerHTML=getTotalProfit();
-    }
-    getTotal();
-
-
-    //19세 이상 제품에 클래스 추가
-    for(var i=0; i<parsedStockData.length; i++){
-      if(parsedStockData[i].ageLimit>=19){
-        var nameList = document.querySelectorAll(".name");
-        nameList[i].classList.add("adult");
-      }
-    }
-    //가장 최근 로컬스토리지에 데이터 있으면 로그테이블로 가져오기
-    var totalProfit=document.querySelector('.totalProfit');
-    var totalIncome=document.querySelector('.totalIncome');
-    var timeArr=Object.keys(localStorage);
-    function getRecentTime(arr){
-      var orderedDates=arr.sort(function(a,b){
-          return Date.parse(a) < Date.parse(b);
-          });
-      return orderedDates[0];
-    };
-    var recentTime=getRecentTime(timeArr);
-    var recentObj=localStorage.getItem(recentTime);
-    var parsedObj=JSON.parse(recentObj);
-    if(parsedObj!==null){
-      getStorage();
-    }
-    function getStorage(){
-      if(parsedObj!==undefined || parsedObj!==null){
-        var keyArr=Object.keys(parsedObj);
-        for(var i=0; i<keyArr.length; i++){
-          if(parsedObj[keyArr[i]]!==null && parsedObj[keyArr[i]]["재고"]!==undefined){
-            for(var j=0; j<parsedStockData.length; j++){
-              if(parsedStockData[j].name===keyArr[i]){
-                stockNumberList[j].innerHTML=parsedObj[keyArr[i]]["재고"];
-              }
-            }
-          }if(parsedObj[keyArr[i]]!==null && parsedObj[keyArr[i]]["매출액"]!==undefined){
-            for(var j=0; j<parsedStockData.length; j++){
-              if(parsedStockData[j].name===keyArr[i]){
-                stockIncomeList[j].innerHTML=parsedObj[keyArr[i]]["매출액"];
-              }
-            }
-          }if(parsedObj[keyArr[i]]!==null && parsedObj[keyArr[i]]["영업이익"]!==undefined){
-            for(var j=0; j<parsedStockData.length; j++){
-              if(parsedStockData[j].name===keyArr[i]){
-                stockProfitList[j].innerHTML=parsedObj[keyArr[i]]["영업이익"];
-              }
-            }
-          }
-        }
-      }getTotal();
-    }
-
-
-  };
-
-};
-
-
-
-
-
-
 
 //로그테이블 내용을 로컬스토리지에 넣기
 function tableToStorage(){
-  // var d=new Date();
-  // var time=d.toLocaleDateString();
+  var time=formatDate();
   var stockNameList=document.querySelectorAll('.stockName');
   var stockNumberList=document.querySelectorAll('.stockNumber');
   var stockIncomeList=document.querySelectorAll('.stockIncome');
@@ -181,8 +243,6 @@ function tableToStorage(){
   var stringifiedTableObj=JSON.stringify(tableObj);
   localStorage.setItem(time,stringifiedTableObj);
 }
-
-
 
 // 돈 투입하고 구매가능한 표시(드래그앤드롭)
 function allowDrop(ev) {
@@ -233,13 +293,14 @@ function availableSignal(){
 
 // 활성화된 버튼이벤트 등록
 function setBtnEvent(){
-  var availableDiv = document.querySelectorAll(".available");
+  var availableDiv=document.querySelectorAll('.available');
   for(var i=0; i<availableDiv.length; i++){
     availableDiv[i].addEventListener('click', pressAvailableBtn);
   }
 };
+
 function pressAvailableBtn(evt){
-  if(evt.target.classList.contains("adult")){
+  if(evt.target.classList.contains("adult")&&evt.target.classList.contains("available")){
     var answer=prompt("what is your age?");
       if(parseInt(answer)>=19){
         reduceBalance(evt);
@@ -270,10 +331,7 @@ function reduceBalance(evt){
 }
 
 //구매시 재고 감소
-
 function reduceStock(evt){
-  // var d=new Date();
-  // var time=d.toLocaleDateString();
   var stockNumberList=document.querySelectorAll(".stockNumber");
   var stockNameList=document.querySelectorAll(".stockName");
   for(var i=0; i<stockNumberList.length; i++){
@@ -286,17 +344,14 @@ function reduceStock(evt){
   }
 }
 
-/* When the user clicks on the button,
-toggle between hiding and showing the dropdown content */
-
-function myFunction() {
-
+// dropdowncontent toggle 기능
+function toggleContents() {
        event.target.nextElementSibling.classList.toggle("show");
 };
 
-// Close the dropdown menu if the user clicks outside of it
-var dropdownContents=document.querySelectorAll(".dropdownContent");
+// 외부 클릭시 dropdowncontent 숨기기
 window.onclick = function(event) {
+  var dropdownContents=document.querySelectorAll(".dropdownContent");
   if (!event.target.matches('.dropbtn')) {
     for (var i = 0; i<dropdownContents.length; i++) {
       if (dropdownContents[i].classList.contains('show')) {
@@ -309,13 +364,12 @@ window.onclick = function(event) {
 
 //구매시 슬라이딩 애니메이션(클론 후 nav로 내려가기)
 function sliding(evt){
-  // console.log("slide");
   var cloneImg=evt.target.previousElementSibling.cloneNode(true);
   var nav=document.querySelector('nav');
   var slidingDiv=nav.querySelector('div');
   if(evt.target.classList.contains("available")){
     slidingDiv.appendChild(cloneImg);
-    slidingDiv.style.transition='transform 3s';
+    slidingDiv.style.transition='transform 1s ease-in';
     slidingDiv.style.transform='translate3d(0,700px,0)';
     slidingDiv.addEventListener('transitionend',removeImg);
     function removeImg(){
@@ -323,23 +377,17 @@ function sliding(evt){
       nav.innerHTML="<div style='transform: translate3d(0,0px,0)'></div>";
     }
   }
-
 };
+
 
 
 //구매시 매출액 증가, 영업이익 증가
 function logMessage(evt){
-
-  var logTable=document.querySelector(".logTable");
-  // var totalIncome=document.querySelector(".totalIncome")
-  // var d=new Date();
-  // var time=d.toLocaleDateString();
-  var stockNumberList=document.querySelectorAll(".stockNumber");
+  var time=formatDate();
   var stockNameList=document.querySelectorAll(".stockName");
   var stockDateList=document.querySelectorAll(".stockDate");
   var stockIncomeList=document.querySelectorAll(".stockIncome");
   var stockProfitList=document.querySelectorAll(".stockProfit");
-  var total=document.querySelector('.total');
   var totalProfit=document.querySelector('.totalProfit');
   var totalIncome=document.querySelector('.totalIncome');
   if(evt.target.classList.contains("available")){
@@ -354,16 +402,10 @@ function logMessage(evt){
         tableToStorage();
       }
     }
-
   }
 };
 
 //재고 구매시 로그테이블,로컬스토리지 변경 (재고수 증가, 영업이익 감소, 총영업이익감소)
-
-var stockBtn=document.querySelector('.stockBtn');
-var profitBtn=document.querySelector('.profitBtn');
-var itemDropdown=document.querySelector('.itemDropdown');
-var stockManagerName=document.querySelector('.stockManagerName');
 itemDropdown.addEventListener('click',inputItemName);
 function inputItemName(evt){
   stockManagerName.value=evt.target.innerText;
@@ -371,16 +413,13 @@ function inputItemName(evt){
 };
 stockBtn.addEventListener('click',stockManager);
 profitBtn.addEventListener('click',profitManager);
+
 function stockManager(){
-  var stockNumberList=document.querySelectorAll(".stockNumber");
-  var stockNameList=document.querySelectorAll(".stockName");
-  var stockManagerName=document.querySelector('.stockManagerName');
-  var stockManagerNumber=document.querySelector('.stockManagerNumber');
-  var stockCostList=document.querySelectorAll('.stockCost');
+  var stockNameList=document.querySelectorAll('.stockName');
+  var stockNumberList=document.querySelectorAll('.stockNumber');
   var stockProfitList=document.querySelectorAll('.stockProfit');
   var totalProfit=document.querySelector('.totalProfit');
-  // var d=new Date();
-  // var time=d.toLocaleDateString();
+  var stockCostList=document.querySelectorAll('.stockCost');
   for(var i=0; i<stockNameList.length; i++){
     if(stockManagerName.value===stockNameList[i].innerHTML && parseInt(stockManagerNumber.value)>0){
       //로그테이블 변경
@@ -399,12 +438,8 @@ function stockManager(){
 
 //날짜별 총수익, 1순위품목 확인
 function profitManager(){
-  var dateFinder=document.querySelector('.dateFinder');
-  var dateTotalProfit=document.querySelector('.dateTotalProfit');
-  var topItem=document.querySelector('.topItem');
   var dateObj=localStorage.getItem(dateFinder.value);
   var parsedDateObj=JSON.parse(dateObj);
-
   if(parsedDateObj===null || parsedDateObj===undefined){
     dateTotalProfit.innerHTML="없음";
     topItem.innerHTML="없음";
@@ -429,8 +464,6 @@ function profitManager(){
 };
 
 
-
-
 //메시지
 function alertMessage(text){
   messageDiv.innerHTML=text;
@@ -439,12 +472,11 @@ function alertMessage(text){
 //광고 슬라이드
 var adSlide = setInterval(adContainerMove, 3000);
 var logTable=document.querySelector(".logTable");
-logTable.addEventListener('click',adContainerMove);
 var adContainer=document.querySelector(".adContainer");
 var baseWidth=150;
 var prop = adContainer.style.transform;
 var xValue=prop.replace(/translate3d\((-?\d+)px.+/,"$1");
-
+logTable.addEventListener('click',adContainerMove);
 adContainer.addEventListener("transitionend",goBack);
 
 function goBack(){

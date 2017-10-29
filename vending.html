@@ -60,7 +60,15 @@
 				<td>재고관리</td>
 			</tr>
 			<tr>
-				<td><input type="text" placeholder="품목명" class="stockManagerName"></td>
+				<td>
+					<div class="dropdownContainer">
+						<input type="text" placeholder="품목명" class="stockManagerName dropbtn" onclick="toggleContents()">
+
+							<div class="dropdownContent itemDropdown"></div>
+
+
+					</div>
+				</td>
 				<td><input type="text" placeholder="갯수" class="stockManagerNumber"></td>
 				<td><button class="stockBtn">채우기</button></td>
 			</tr>
@@ -73,7 +81,10 @@
 				<td>매출관리</td>
 			</tr>
 			<tr>
-				<td><input type="text" placeholder="날짜(연.월.일.)" class="dateFinder"></td>
+				<td>
+					<input type="date" class="dateFinder">
+
+				</td>
 				<td class="dateTotalProfit">0</td>
 				<td class="topItem"></td>
 				<td><button class="profitBtn">검색</button></td>
@@ -81,7 +92,12 @@
 		</table>
 	</div>
 
-
-	<script src="./vending.js"></script>
+	<script type="dataTemplate" id="dataTemplate">
+		<div class={{hotOrCold}}><img src={{url}}><div class='name'>{{name}}</div><div class='price'>{{price}}</div></div>
+	</script>
+	<script type="stockTemplate" id="stockTemplate">
+		<tr class='stock'><td class='stockName'>{{name}}</td><td class='stockNumber'>{{stock}}</td><td class='stockIncome'>0</td><td class='stockDate'>{{date}}</td><td class='stockCost'>{{cost}}</td><td class='stockProfit'>0</td>
+	</script>
+	<script src="./parameter.js"></script>
 </body>
 </html>
